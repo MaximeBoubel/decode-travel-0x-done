@@ -1,0 +1,16 @@
+
+
+# Node modules
+/node_modules/
+
+# JavaScript files
+*.js
+
+# TypeScript source map files
+*.js.map
+
+# If you decide to exclude package-lock.json
+package-lock.json
+
+.env
+*.xml

@@ -1,0 +1,44 @@
+{
+  "name": "miko-store",
+  "version": "1.0.0",
+  "description": "miko web shop",
+  "main": "bin/serve.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bin/serve.js",
+    "build": "tsc",
+    "dev": "ts-node src/MainApp.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nkoljanin/miko-store.git"
+  },
+  "author": "nk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nkoljanin/miko-store/issues"
+  },
+  "homepage": "https://github.com/nkoljanin/miko-store#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "express-file-store": "latest",
+    "express-fileupload": "^1.4.0",
+    "mongoose": "^8.2.0",
+    "node-telegram-bot-api": "^0.64.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.12",
+    "@types/chai-http": "^4.2.0",
+    "@types/express": "^4.17.21",
+    "@types/mocha": "^10.0.6",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.11.24",
+    "chai": "^5.1.0",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
