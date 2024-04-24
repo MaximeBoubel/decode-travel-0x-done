@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2017",
-    "moduleResolution": "node",
+    "module": "CommonJS",
+    "target": "es2020",
     "sourceMap": true,
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": false,
     "declaration": false,
     "watch": false,
+    "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "experimentalDecorators": true,
     "skipLibCheck": true
   },
