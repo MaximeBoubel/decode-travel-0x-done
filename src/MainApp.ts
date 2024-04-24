@@ -5,6 +5,7 @@ import { IndexController } from './controllers/IndexController';
 import { UserController } from './controllers/UserController'; // Import the UserController
 // import { TelegramController } from './controllers/TelegramController'; // Import the TelegramController
 import dotenv from 'dotenv';
+import {TelegramService} from "./services/TelegramService";
 
 dotenv.config();
 export class MainApp {
@@ -19,6 +20,14 @@ export class MainApp {
         this.indexController = new IndexController();
         this.userController = new UserController(); // Instantiate UserController
       //  this.telegramController = new TelegramController(); // Instantiate TelegramController
+
+        try {
+            const telegramService = new TelegramService();
+            telegramService.start();  // This method includes the bot initialization and starts listening to messages
+            console.log("All services started successfully.");
+        } catch (error) {
+            console.error("Failed to start services:", error);
+        }
         this.routes();
     }
 
