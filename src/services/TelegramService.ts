@@ -397,6 +397,7 @@ export class TelegramService {
 
                 let options;
                 if (command === 'pay') {
+                    const username = msg.from.username ? msg.from.username : '';
                     options = {
                         caption: `Hey there \`${msg.from.username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm and you will receive 10 $USDT from 0xDone \nYour wallet address: \`${wallet.address}\` \n`,
                         parse_mode: 'Markdown',
