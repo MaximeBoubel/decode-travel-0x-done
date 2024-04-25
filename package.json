@@ -28,7 +28,8 @@
     "express-file-store": "latest",
     "express-fileupload": "^1.4.0",
     "mongoose": "^8.2.0",
-    "node-telegram-bot-api": "^0.64.0"
+    "node-telegram-bot-api": "^0.64.0",
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
     "@types/chai": "^4.3.12",
