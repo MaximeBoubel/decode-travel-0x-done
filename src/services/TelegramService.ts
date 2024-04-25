@@ -1,10 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api';
-import {ethers, HDNodeWallet, Wallet} from 'ethers';
+import {BigNumber, ethers, HDNodeWallet, Wallet} from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import {ObjectId} from 'mongodb';
 import {Contract} from "../models/Contract";
 
-const ENCRYPTION_KEY: string = process.env.ENCRYPTION_KEY!;  // Non-null assertion or handle it properly in production
+const ENCRYPTION_KEY: string = process.env.ENCRYPTION_KEY!;
 const IV_LENGTH: number = 16;  // For AES-256-CBC, IV is always 16 bytes
 const tokenAddress = "0x5564f96aabf78ff96a1715a6a474281901fae853";
 
@@ -663,7 +663,6 @@ const dvPay = [
 ];
 const dvPayAddress = "0x893d7Aa2635C6fFb817a91477d8375Bb0Dee4306";
 
-
 export class TelegramService {
     private bot: TelegramBot;
 
@@ -702,7 +701,7 @@ export class TelegramService {
                 let options;
                 if (command === 'pay') {
                     options = {
-                        caption: `Hello, welcome to 0xDone.\nYou will be paid out 10 USDT for your tour. Your wallet address: \`${wallet.address}\``,
+                        caption: `Hey there \`${msg.from.username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm your payment to CaminoExperience \nYour wallet address: \`${wallet.address}\` \n`,
                         parse_mode: 'Markdown',
                         reply_markup: {
                             inline_keyboard: [
@@ -738,7 +737,6 @@ export class TelegramService {
                 }
                 // The path or URL of the image you want to send
                 const photo = 'https://ibb.co/HdcHSMT';
-
                 this.bot.sendPhoto(msg.chat.id, photo, options);
             } else if (msg.text?.toLowerCase() === '/getPaid') {
                 const userExists = await User.findOne({telegram_id: msg.from.id});
@@ -749,7 +747,7 @@ export class TelegramService {
                     wallet = await this.connectWallet(msg.from);
                 }
                 const options = {
-                    caption: `Hello, welcome to 0xDone.\nYour wallet address: \`${wallet.address}\``,
+                    caption: `Hey there \`${msg.from.from.nickname}\` 👋, Get ready for unforgettable adventures with us \nYour wallet address: \`${wallet.address}\``,
                     parse_mode: 'Markdown',
                     reply_markup: {
                         inline_keyboard: [
@@ -774,7 +772,7 @@ export class TelegramService {
             switch (data) {
                 case 'getPaid':
                     // Handle the 'getPaid' action
-                    await this.handleGetPaid(message);
+                    await this.handlePay(message);
                     break;
                 case 'cancel':
                     // Handle cancellation
@@ -784,7 +782,7 @@ export class TelegramService {
         });
 
     }
-    async handleGetPaid(message) {
+    async handlePay(message) {
         const user = await User.findOne({telegram_id: message.chat.id});
         if (!user.last_message) {
             user.last_message = message.message_id;
@@ -798,7 +796,7 @@ export class TelegramService {
         const balance = res.balance;
         if (res) {
             this.bot.sendMessage(message.chat.id,
-                `Payment successful\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance:${balance}`,
+                `Payment successful to user CaminoExperience\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance: ${balance} $USDT`,
                 { parse_mode: 'MarkdownV2' }
             );
         } else {
@@ -809,8 +807,8 @@ export class TelegramService {
     // set password
     // encrypt the private key
     async setPassword() {
-
     }
+
     // 2 options: user inputs amount and recipient or user scans qr code
     async transactionPay(amount, recipient) {
         try {
@@ -828,22 +826,23 @@ export class TelegramService {
                 from: devWallet.address,
                 value: ethers.utils.parseEther("0.001")
             }
+
             const txResponse = await devWallet.sendTransaction(funding);
             const txReceipt = await txResponse.wait();
 
             console.log('Transaction hash:', txReceipt.transactionHash);
-
+            const amountToSend = BigNumber.from(10).mul(BigNumber.from(10).pow(18));
             // Execute ERC20 token transfer
-            let approve = await tokenContract.approve(devWallet.address, amount);
-            let receipt = await approve.wait();        // before transfer, give me the transaction amount
+            let approve = await tokenContract.approve(devWallet.address, amountToSend.toString());
+            let receipt = await approve.wait();
             const txToken = await tokenContract.transfer(recipient, amount);
             const txTokenReceipt = await txToken.wait();
             console.log('Transaction hash:', txTokenReceipt.transactionHash);
+            // send 10 USDT fix decimals
 
             const recipientTokenBalance = await tokenContract.balanceOf(recipient);
             console.log(`Sender balance: ${ethers.utils.formatEther(recipientTokenBalance)} tokens`);
 
-            // Convert the sender balance to a BigNumber for comparison (if not already)
             const formattedAmount = ethers.utils.parseUnits(recipientTokenBalance.toString(), 'wei'); // Assumes token has 18 decimal places
 
             return {receipt: txTokenReceipt, balance: formattedAmount};
@@ -851,44 +850,6 @@ export class TelegramService {
         } catch (e) {
             console.log(e);
         }
-
-    }
-
-    async multicall() {
-        const provider = new JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
-        const privateKey = process.env.DEV_WALLET_PKEY;  // Make sure this is securely stored and not exposed
-        const devWallet = new ethers.Wallet(privateKey, provider);
-
-        let tokenContract = new ethers.Contract("0x5564f96aabf78ff96a1715a6a474281901fae853", JSON.stringify(abi), devWallet);
-
-        let approve = await tokenContract.approve(devWallet.address, 10);
-        let receipt = await approve.wait();
-       //  const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
-        const tokenTransferData = tokenContract.interface.encodeFunctionData('transfer', ['recipient', ethers.utils.parseUnits('10', 18)]);
-
-        // Native ETH transfer data
-        const ethTransferData = {
-            to: '0xRecipientAddress',
-            value: ethers.utils.parseEther('1.0')  // Sending 1 ETH
-        };
-
-// Using a custom multicall contract or aggregator functionality if available:
-// 1. The multicall contract would need to handle both Ether transactions and contract calls.
-// 2. You can create a single transaction that encapsulates both operations.
-
-// Alternatively, without a multicall contract:
-// Execute ERC20 token transfer
-        const txToken = await signer.sendTransaction({
-            to: tokenAddress,
-            data: tokenTransferData
-        });
-
-// Execute native ETH transfer
-        const txEth = await signer.sendTransaction(ethTransferData);
-    }
-    // generates qr code with prefilled amount and recipietn
-    requestPayment() {
-
     }
 
     async createWallet(from) {
@@ -905,6 +866,7 @@ export class TelegramService {
         user.telegram_id = from.id;
         user.username = from.username;
         user.address = wallet.address;
+        // encrypt private key using crypto-js
         user.pkey = wallet.privateKey;  // Assuming you have an encryption function as discussed
         user.save();
         return wallet.connect(provider);
@@ -921,20 +883,18 @@ export class TelegramService {
             const existingWallet = new Wallet(privateKey, provider);
             return existingWallet;
         }
+
         const user = await User.findOne({telegram_id: from.id});
-        // @ts-ignore
         if (!user.address || !user.pkey) {
             throw new Error("User wallet information is missing.");
         }
         // Connect the wallet using the private key
         const url = 'https://columbus.camino.network/ext/bc/C/rpc';
-        // @ts-ignore
         const privateKey = user.pkey;
         const provider = new JsonRpcProvider(url);
 
         // Connect to the existing wallet using the private key and the provider
         const existingWallet = new Wallet(privateKey, provider);
-        //const wallet = new Wallet(process.env.PRIVATE_KEY!);
         return existingWallet;
     }
     // faucet
@@ -944,7 +904,6 @@ export class TelegramService {
         const provider = new JsonRpcProvider(url);
 
         // Connect to the existing wallet using the private key and the provider
-        // @ts-ignore
         const existingWallet = new Wallet(privateKey, provider);
         const transaction = {
             from: recipient,
