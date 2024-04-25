@@ -553,39 +553,6 @@ export class TelegramService {
 
     }
 
-    // 2 options: user inputs amount and recipient or user scans qr code
-    // async transactionPay(amount, recipient, sender) {
-    //     try {
-    //         const provider = new JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
-    //         // recipient
-    //         const privateKey = process.env.DEV_WALLET_PKEY;  // Make sure this is securely stored and not exposed
-    //         const recipientWallet = new ethers.Wallet(privateKey, provider);
-    //
-    //         // sender wallet
-    //         // @ts-ignore
-    //         const senderPrivateKey = sender.pkey; // Make sure this is securely stored and not exposed, decrypt
-    //         const senderWallet = new ethers.Wallet(senderPrivateKey, provider);
-    //
-    //         let tokenContract = new ethers.Contract("0x5564f96aabf78ff96a1715a6a474281901fae853", JSON.stringify(abi), senderWallet);
-    //
-    //         const amountToSend = BigNumber.from(10).mul(BigNumber.from(10).pow(18));
-    //         // Execute ERC20 token transfer
-    //         let approve = await tokenContract.approve(senderWallet.address, amountToSend.toString());
-    //         let receipt = await approve.wait();
-    //         const txToken = await tokenContract.transfer(recipient, amountToSend.toString();
-    //         const txTokenReceipt = await txToken.wait();
-    //         console.log('Transaction hash:', txTokenReceipt.transactionHash);
-    //
-    //         const senderBalance = await tokenContract.balanceOf(senderWallet.address);
-    //         console.log(`Sender balance: ${ethers.utils.formatEther(senderBalance)} tokens`);
-    //         const formattedAmount = ethers.utils.parseUnits(senderBalance.toString(), 'wei'); // Assumes token has 18 decimal places
-    //         return {receipt: txTokenReceipt, balance: formattedAmount};
-    //
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    // }
-
     async transactionPay(amount: number, recipient: string, sender: any) {
         try {
             const provider = new ethers.providers.JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
