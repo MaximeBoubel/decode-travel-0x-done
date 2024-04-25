@@ -6,13 +6,15 @@ export interface IUser extends Document {
     username: string;
     address: string;
     pkey: string;
+    last_message: string;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
     telegram_id: { type: String, required: true, unique: true },
     username: { type: String, required: true },
     address: { type: String, required: true },
-    pkey: { type: String, required: true }
+    pkey: { type: String, required: true },
+    last_message: { type: String, required: false },
 });
 
 export const User = mongoose.model<IUser>('users', UserSchema);

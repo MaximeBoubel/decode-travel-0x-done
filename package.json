@@ -1,7 +1,7 @@
 {
-  "name": "miko-store",
+  "name": "0xdone",
   "version": "1.0.0",
-  "description": "miko web shop",
+  "description": "0xDone Telegram Bot made for Decode Travel Hackathon",
   "main": "bin/serve.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nkoljanin/miko-store.git"
+    "url": ""
   },
   "author": "nk",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/nkoljanin/miko-store/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/nkoljanin/miko-store#readme",
+  "homepage": "",
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
     "cors": "^2.8.5",
