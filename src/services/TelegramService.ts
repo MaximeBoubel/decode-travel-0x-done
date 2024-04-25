@@ -700,8 +700,9 @@ export class TelegramService {
 
                 let options;
                 if (command === 'pay') {
+                    const username = msg.from.username ? msg.from.username : '';
                     options = {
-                        caption: `Hey there \`${msg.from.username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm your payment to CaminoExperience \nYour wallet address: \`${wallet.address}\` \n`,
+                        caption: `Hey there \`${username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm your payment to CaminoExperience \nYour wallet address: \`${wallet.address}\` \n`,
                         parse_mode: 'Markdown',
                         reply_markup: {
                             inline_keyboard: [
@@ -797,7 +798,16 @@ export class TelegramService {
         if (res) {
             this.bot.sendMessage(message.chat.id,
                 `Payment successful to user CaminoExperience\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance: ${balance} $USDT`,
-                { parse_mode: 'MarkdownV2' }
+                {
+                    parse_mode: 'MarkdownV2',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{text: "Book guided tour of historic Stone Town", callback_data: 'bookHistoricStoneTown'}],
+                            [{text: "Book Zanzibar spice tour", callback_data: 'bookSpiceTour'}],
+                            [{text: "Book visit Uzi island", callback_data: 'bookUziIsland'}]
+                        ]
+                    }
+                }
             );
         } else {
             this.bot.sendMessage(message.chat.id, "Payment failed.");
