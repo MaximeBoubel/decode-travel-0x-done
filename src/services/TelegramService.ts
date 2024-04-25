@@ -3,11 +3,16 @@ import {BigNumber, ethers, HDNodeWallet, Wallet} from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import {ObjectId} from 'mongodb';
 import {Contract} from "../models/Contract";
+import {User} from "../models/User";
+// import QRCode from 'qrcode';
+import CryptoJS from 'crypto-js';
+
 
 const ENCRYPTION_KEY: string = process.env.ENCRYPTION_KEY!;
 const IV_LENGTH: number = 16;  // For AES-256-CBC, IV is always 16 bytes
-const tokenAddress = "0x5564f96aabf78ff96a1715a6a474281901fae853";
 
+// usdt contract address and abi
+const tokenAddress = "0x5564f96aabf78ff96a1715a6a474281901fae853";
 const abi = [
     {
         "inputs" : [ ],
@@ -354,314 +359,6 @@ const abi = [
         "type" : "function"
     }
 ];
-import {User} from "../models/User";
-
-const dvPay = [
-    {
-        "inputs" : [
-            {
-                "internalType" : "address",
-                "name" : "_tokenAddress",
-                "type" : "address"
-            },
-            {
-                "internalType" : "string",
-                "name" : "__name",
-                "type" : "string"
-            },
-            {
-                "internalType" : "string",
-                "name" : "__symbol",
-                "type" : "string"
-            },
-            {
-                "internalType" : "address",
-                "name" : "_factory",
-                "type" : "address"
-            },
-            {
-                "internalType" : "address",
-                "name" : "_owner",
-                "type" : "address"
-            }
-        ],
-        "stateMutability" : "nonpayable",
-        "type" : "constructor"
-    },
-    {
-        "anonymous" : false,
-        "inputs" : [
-            {
-                "indexed" : false,
-                "internalType" : "address",
-                "name" : "payer",
-                "type" : "address"
-            },
-            {
-                "indexed" : false,
-                "internalType" : "uint256",
-                "name" : "amount",
-                "type" : "uint256"
-            },
-            {
-                "indexed" : false,
-                "internalType" : "uint256",
-                "name" : "paymentId",
-                "type" : "uint256"
-            }
-        ],
-        "name" : "payment",
-        "type" : "event"
-    },
-    {
-        "anonymous" : false,
-        "inputs" : [
-            {
-                "indexed" : false,
-                "internalType" : "address",
-                "name" : "payer",
-                "type" : "address"
-            },
-            {
-                "indexed" : false,
-                "internalType" : "uint256",
-                "name" : "amount",
-                "type" : "uint256"
-            },
-            {
-                "indexed" : false,
-                "internalType" : "uint256",
-                "name" : "paymentId",
-                "type" : "uint256"
-            }
-        ],
-        "name" : "request",
-        "type" : "event"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "address",
-                "name" : "signer",
-                "type" : "address"
-            }
-        ],
-        "name" : "addSigner",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [ ],
-        "name" : "detach",
-        "outputs" : [ ],
-        "stateMutability" : "nonpayable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [ ],
-        "name" : "getRoyalty",
-        "outputs" : [
-            {
-                "internalType" : "uint256",
-                "name" : "",
-                "type" : "uint256"
-            }
-        ],
-        "stateMutability" : "view",
-        "type" : "function"
-    },
-    {
-        "inputs" : [ ],
-        "name" : "getSigners",
-        "outputs" : [
-            {
-                "internalType" : "address[]",
-                "name" : "",
-                "type" : "address[]"
-            }
-        ],
-        "stateMutability" : "view",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "uint256",
-                "name" : "paymentId",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "uint256",
-                "name" : "amount",
-                "type" : "uint256"
-            }
-        ],
-        "name" : "instantPay",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "address",
-                "name" : "_address",
-                "type" : "address"
-            }
-        ],
-        "name" : "isSigner",
-        "outputs" : [
-            {
-                "internalType" : "bool",
-                "name" : "",
-                "type" : "bool"
-            }
-        ],
-        "stateMutability" : "view",
-        "type" : "function"
-    },
-    {
-        "inputs" : [ ],
-        "name" : "owner",
-        "outputs" : [
-            {
-                "internalType" : "address",
-                "name" : "",
-                "type" : "address"
-            }
-        ],
-        "stateMutability" : "view",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "uint256",
-                "name" : "paymentId",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "uint256",
-                "name" : "amount",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "bytes32",
-                "name" : "hash",
-                "type" : "bytes32"
-            },
-            {
-                "internalType" : "bytes",
-                "name" : "signature",
-                "type" : "bytes"
-            }
-        ],
-        "name" : "pay",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "address",
-                "name" : "signer",
-                "type" : "address"
-            }
-        ],
-        "name" : "removeSigner",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "uint256",
-                "name" : "paymentId",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "uint256",
-                "name" : "amount",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "address",
-                "name" : "payer",
-                "type" : "address"
-            }
-        ],
-        "name" : "requestPayment",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "uint256",
-                "name" : "__royalty",
-                "type" : "uint256"
-            },
-            {
-                "internalType" : "address",
-                "name" : "__royaltyRecipient",
-                "type" : "address"
-            }
-        ],
-        "name" : "setRoyalties",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "address",
-                "name" : "newOwner",
-                "type" : "address"
-            }
-        ],
-        "name" : "transferOwnership",
-        "outputs" : [ ],
-        "stateMutability" : "nonpayable",
-        "type" : "function"
-    },
-    {
-        "inputs" : [
-            {
-                "internalType" : "bytes32",
-                "name" : "hash",
-                "type" : "bytes32"
-            },
-            {
-                "internalType" : "bytes",
-                "name" : "signature",
-                "type" : "bytes"
-            }
-        ],
-        "name" : "verifySignature",
-        "outputs" : [
-            {
-                "internalType" : "bool",
-                "name" : "",
-                "type" : "bool"
-            }
-        ],
-        "stateMutability" : "view",
-        "type" : "function"
-    },
-    {
-        "inputs" : [ ],
-        "name" : "withdraw",
-        "outputs" : [ ],
-        "stateMutability" : "payable",
-        "type" : "function"
-    }
-];
-const dvPayAddress = "0x893d7Aa2635C6fFb817a91477d8375Bb0Dee4306";
 
 export class TelegramService {
     private bot: TelegramBot;
@@ -701,7 +398,7 @@ export class TelegramService {
                 let options;
                 if (command === 'pay') {
                     options = {
-                        caption: `Hey there \`${msg.from.username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm your payment to CaminoExperience \nYour wallet address: \`${wallet.address}\` \n`,
+                        caption: `Hey there \`${msg.from.username}\` 👋\nThanks for being with us for unforgettable adventures. Please confirm and you will receive 10 $USDT from 0xDone \nYour wallet address: \`${wallet.address}\` \n`,
                         parse_mode: 'Markdown',
                         reply_markup: {
                             inline_keyboard: [
@@ -723,7 +420,8 @@ export class TelegramService {
                         }
                     };
                 }
-                // The path or URL of the image you want to send
+
+                // welcome image
                 const photo = 'https://ibb.co/HdcHSMT';
 
                 this.bot.sendPhoto(msg.chat.id, photo, options);
@@ -738,29 +436,6 @@ export class TelegramService {
                 // The path or URL of the image you want to send
                 const photo = 'https://ibb.co/HdcHSMT';
                 this.bot.sendPhoto(msg.chat.id, photo, options);
-            } else if (msg.text?.toLowerCase() === '/getPaid') {
-                const userExists = await User.findOne({telegram_id: msg.from.id});
-                let wallet;
-                if (!userExists) {
-                    wallet = await this.createWallet(msg.from);
-                } else {
-                    wallet = await this.connectWallet(msg.from);
-                }
-                const options = {
-                    caption: `Hey there \`${msg.from.from.nickname}\` 👋, Get ready for unforgettable adventures with us \nYour wallet address: \`${wallet.address}\``,
-                    parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{text: "Confirm", callback_data: 'getPaid'}],
-                        ]
-                    }
-                };
-                await this.pay(10, wallet.address);
-
-                // The path or URL of the image you want to send
-                const photo = 'https://ibb.co/HdcHSMT';
-
-                this.bot.sendPhoto(msg.chat.id, photo, options);
             }
         });
 
@@ -772,7 +447,7 @@ export class TelegramService {
             switch (data) {
                 case 'getPaid':
                     // Handle the 'getPaid' action
-                    await this.handlePay(message);
+                    await this.handleGetPaid(message);
                     break;
                 case 'cancel':
                     // Handle cancellation
@@ -780,9 +455,9 @@ export class TelegramService {
                     break;
             }
         });
-
     }
-    async handlePay(message) {
+
+    async handleGetPaid(message) {
         const user = await User.findOne({telegram_id: message.chat.id});
         if (!user.last_message) {
             user.last_message = message.message_id;
@@ -791,12 +466,13 @@ export class TelegramService {
         else if (user.last_message.toString() === message.message_id.toString()) {
             this.bot.sendMessage(message.chat.id, "You have already requested this payment.");
         }
-        const res = await this.transactionPay(10, user.address);
+        const res = await this.claimPaymentDemo(10, user.address);
         const txHash = res.receipt.transactionHash;
-        const balance = res.balance;
+        const balance = res.balance.toString();
+
         if (res) {
             this.bot.sendMessage(message.chat.id,
-                `Payment successful to user CaminoExperience\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance: ${balance} $USDT`,
+                `Payment received\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance:${balance} USDT`,
                 { parse_mode: 'MarkdownV2' }
             );
         } else {
@@ -804,13 +480,7 @@ export class TelegramService {
         }
     }
 
-    // set password
-    // encrypt the private key
-    async setPassword() {
-    }
-
-    // 2 options: user inputs amount and recipient or user scans qr code
-    async transactionPay(amount, recipient) {
+    async claimPaymentDemo(amount, recipient) {
         try {
             const provider = new JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
 
@@ -826,29 +496,134 @@ export class TelegramService {
                 from: devWallet.address,
                 value: ethers.utils.parseEther("0.001")
             }
-
             const txResponse = await devWallet.sendTransaction(funding);
             const txReceipt = await txResponse.wait();
 
             console.log('Transaction hash:', txReceipt.transactionHash);
-            const amountToSend = BigNumber.from(10).mul(BigNumber.from(10).pow(18));
+
             // Execute ERC20 token transfer
-            let approve = await tokenContract.approve(devWallet.address, amountToSend.toString());
-            let receipt = await approve.wait();
-            const txToken = await tokenContract.transfer(recipient, amount);
+            const _amount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18));
+            let approve = await tokenContract.approve(devWallet.address, _amount.toString();
+            let receipt = await approve.wait();        // before transfer, give me the transaction amount
+            const txToken = await tokenContract.transfer(recipient, _amount.toString());
             const txTokenReceipt = await txToken.wait();
             console.log('Transaction hash:', txTokenReceipt.transactionHash);
-            // send 10 USDT fix decimals
 
             const recipientTokenBalance = await tokenContract.balanceOf(recipient);
             console.log(`Sender balance: ${ethers.utils.formatEther(recipientTokenBalance)} tokens`);
 
-            const formattedAmount = ethers.utils.parseUnits(recipientTokenBalance.toString(), 'wei'); // Assumes token has 18 decimal places
+           // const formattedAmount = ethers.utils.formatEther(recipientTokenBalance).toString(); // Assumes token has 18 decimal places
+            const formattedAmount = parseInt(ethers.utils.formatEther(recipientTokenBalance));
 
-            return {receipt: txTokenReceipt, balance: formattedAmount};
+            return {receipt: txTokenReceipt, balance: formattedAmount.toString()};
 
         } catch (e) {
             console.log(e);
+        }
+
+    }
+
+
+    async handlePay(message) {
+        const user = await User.findOne({telegram_id: message.chat.id});
+        if (!user.last_message) {
+            user.last_message = message.message_id;
+            user.save();
+        }
+        else if (user.last_message.toString() === message.message_id.toString()) {
+            this.bot.sendMessage(message.chat.id, "You have already requested this payment.");
+        }
+        const res = await this.transactionPay(10, process.env.DEV_WALLET_ADDRESS, user);
+        const txHash = res.receipt.transactionHash;
+        const balance = res.balance;
+        if (res) {
+            this.bot.sendMessage(message.chat.id,
+                `Payment successful to user CaminoExperience\nView on blockexplorer [CaminoScan](https://columbus.caminoscan.com/tx/${txHash})\nYour new balance: ${balance} $USDT`,
+                { parse_mode: 'MarkdownV2' }
+            );
+        } else {
+            this.bot.sendMessage(message.chat.id, "Payment failed.");
+        }
+    }
+
+    // set password
+    // to encrypt the private key
+    async setPassword() {
+
+    }
+
+    // 2 options: user inputs amount and recipient or user scans qr code
+    // async transactionPay(amount, recipient, sender) {
+    //     try {
+    //         const provider = new JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
+    //         // recipient
+    //         const privateKey = process.env.DEV_WALLET_PKEY;  // Make sure this is securely stored and not exposed
+    //         const recipientWallet = new ethers.Wallet(privateKey, provider);
+    //
+    //         // sender wallet
+    //         // @ts-ignore
+    //         const senderPrivateKey = sender.pkey; // Make sure this is securely stored and not exposed, decrypt
+    //         const senderWallet = new ethers.Wallet(senderPrivateKey, provider);
+    //
+    //         let tokenContract = new ethers.Contract("0x5564f96aabf78ff96a1715a6a474281901fae853", JSON.stringify(abi), senderWallet);
+    //
+    //         const amountToSend = BigNumber.from(10).mul(BigNumber.from(10).pow(18));
+    //         // Execute ERC20 token transfer
+    //         let approve = await tokenContract.approve(senderWallet.address, amountToSend.toString());
+    //         let receipt = await approve.wait();
+    //         const txToken = await tokenContract.transfer(recipient, amountToSend.toString();
+    //         const txTokenReceipt = await txToken.wait();
+    //         console.log('Transaction hash:', txTokenReceipt.transactionHash);
+    //
+    //         const senderBalance = await tokenContract.balanceOf(senderWallet.address);
+    //         console.log(`Sender balance: ${ethers.utils.formatEther(senderBalance)} tokens`);
+    //         const formattedAmount = ethers.utils.parseUnits(senderBalance.toString(), 'wei'); // Assumes token has 18 decimal places
+    //         return {receipt: txTokenReceipt, balance: formattedAmount};
+    //
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    // }
+
+    async transactionPay(amount: number, recipient: string, sender: any) {
+        try {
+            const provider = new ethers.providers.JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
+
+            // Initializing the sender wallet
+            const senderPrivateKey = sender.pkey; // Ensure this private key is securely stored and handled
+            const senderWallet = new ethers.Wallet(senderPrivateKey, provider);
+
+            // Define the token contract with the ABI and contract address
+            const tokenContract = new ethers.Contract(
+                "0x5564f96aabf78ff96a1715a6a474281901fae853",
+                abi,  // Make sure 'abi' is correctly imported or defined in your scope
+                senderWallet
+            );
+
+            // Calculate the amount to send accounting for decimal places
+            const decimals = await tokenContract.decimals(); // Dynamically fetch the token's decimals
+            const amountToSend = BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals));
+
+            // Approve the transfer from the sender's wallet
+            let approve = await tokenContract.approve(recipient, amountToSend.toString());
+            await approve.wait();
+
+            // Execute the token transfer
+            const txToken = await tokenContract.transfer(recipient, amountToSend.toString());
+            const txTokenReceipt = await txToken.wait();
+            console.log('Transaction hash:', txTokenReceipt.transactionHash);
+
+            // Fetch and log the sender's balance post-transfer
+            const senderBalance = await tokenContract.balanceOf(senderWallet.address);
+            console.log(`Sender balance: ${ethers.utils.formatUnits(senderBalance, decimals)} tokens`);
+
+            return {
+                receipt: txTokenReceipt,
+                balance: ethers.utils.formatUnits(senderBalance, decimals)
+            };
+        } catch (e) {
+            console.error(e);
+            throw e; // Re-throw the error to handle it in the calling function or indicate a failure
         }
     }
 
@@ -879,7 +654,6 @@ export class TelegramService {
             const provider = new JsonRpcProvider(url);
 
             // Connect to the existing wallet using the private key and the provider
-            // @ts-ignore
             const existingWallet = new Wallet(privateKey, provider);
             return existingWallet;
         }
@@ -890,13 +664,75 @@ export class TelegramService {
         }
         // Connect the wallet using the private key
         const url = 'https://columbus.camino.network/ext/bc/C/rpc';
-        const privateKey = user.pkey;
+        const privateKey = user.pkey; // encrypt with passphrase (user input)
         const provider = new JsonRpcProvider(url);
 
         // Connect to the existing wallet using the private key and the provider
         const existingWallet = new Wallet(privateKey, provider);
         return existingWallet;
     }
+
+    async pay(amount: number, recipient: string, sender: { pkey: string }) {
+        try {
+            const provider = new ethers.providers.JsonRpcProvider('https://columbus.camino.network/ext/bc/C/rpc');
+
+            const wallet = new ethers.Wallet(sender.pkey, provider);
+
+            // Prepare the transaction details
+            const transaction = {
+                from: wallet.address,  // 'from' field is typically not needed as the wallet knows its address
+                to: recipient,
+                value: ethers.utils.parseEther(amount.toString())  // Convert the amount to the smallest unit
+            };
+
+            // Send the transaction
+            const txResponse = await wallet.sendTransaction(transaction);
+            const txReceipt = await txResponse.wait();
+
+            // Logging the transaction hash
+            console.log('Transaction hash:', txReceipt.transactionHash);
+
+            // Return the transaction receipt
+            return txReceipt;
+        } catch (error) {
+            console.error('Failed to send transaction:', error);
+            throw error;  // Rethrow or handle the error appropriately
+        }
+    }
+
+    async requestPayment(amount: number, recipient: string, sender: { pkey: string }) {
+        try {
+            const paymentId = Date.now().toString();
+
+            const provider = new ethers.providers.JsonRpcProvider('https://your.network/rpc');
+
+            // Create a wallet for the sender
+            const senderWallet = new ethers.Wallet(sender.pkey, provider);
+
+            // Generate a message to sign
+            const message = `Please sign this message to confirm the payment request of ${amount} units to ${recipient}. Payment ID: ${paymentId}`;
+
+            // Request a signature from the sender
+            const signature = await senderWallet.signMessage(message);
+
+            // Generate QR code for the paymentId, which can be scanned for further processing
+            const qrCodeUrl = await QRCode.toDataURL(paymentId);
+
+            console.log('Payment ID:', paymentId);
+            console.log('Signature:', signature);
+            console.log('QR Code URL:', qrCodeUrl);
+
+            return {
+                paymentId,
+                signature,
+                qrCodeUrl
+            };
+        } catch (error) {
+            console.error('Failed to process payment request:', error);
+            throw error;
+        }
+    }
+
     // faucet
     async fundWallet(recipient) {
         const url = 'https://columbus.camino.network/ext/bc/C/rpc';
@@ -912,6 +748,19 @@ export class TelegramService {
         const txResponse = await existingWallet.sendTransaction(transaction);
         const txReceipt = await txResponse.wait();
         console.log('Transaction hash:', txReceipt.transactionHash);
+    }
+
+    /**** encryption and decryption functions ****/
+     encrypt(privateKey, passphrase) {
+        const encrypted = CryptoJS.AES.encrypt(privateKey, passphrase).toString();
+        return encrypted;
+    }
+
+    // Function to decrypt the private key
+     decrypt(encryptedPrivateKey, passphrase) {
+        const bytes = CryptoJS.AES.decrypt(encryptedPrivateKey, passphrase);
+        const originalPrivateKey = bytes.toString(CryptoJS.enc.Utf8);
+        return originalPrivateKey;
     }
 
 }
